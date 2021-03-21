@@ -32,9 +32,18 @@
 		tasks = await getTasks()
 	}
 
-	const onDone = (event) => {
-		let index = tasks.findIndex( task => task.id === event.detail.id);
-		tasks[index].status = 'done';
+	const onDone = async (event) => {
+		const db = firebase.firestore();
+
+		// FIX: ここでドキュメントIDを取得するために通信してるが、もっと良い方法がありそう。
+		const collection = await db.collection('tasks').where("id", "==", event.detail.id).get();
+		const docId = collection.docs[0].id
+
+		await db.collection("tasks").doc(docId).set({
+			status: "done"
+		}, { merge: true })
+		
+		tasks = await getTasks()
 	}
 
 	const getTasks = async () => {
