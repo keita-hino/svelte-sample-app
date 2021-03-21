@@ -20,13 +20,16 @@
 	$: doneTasks = tasks.filter( task => task.status == 'done');
 
 	const onSave = async (event) => {
-		let task = {
+		// TODO: この辺りの記述は重複してるので、あとあとまとめたい
+		const db = firebase.firestore();
+
+		await db.collection("tasks").add({
 			id: tasks.length + 1,
 			name: event.detail.name,
 			status: 'backlog'
-		}
+		})
 
-		tasks = [...tasks, task]
+		tasks = await getTasks()
 	}
 
 	const onDone = (event) => {
