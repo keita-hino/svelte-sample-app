@@ -1,11 +1,38 @@
-<script>
-	export let name;
-</script>
-
 <main>
-	<h1>Hello {name}!</h1>
-	<p>Visit the <a href="https://svelte.dev/tutorial">Svelte tutorial</a> to learn how to build Svelte apps.</p>
+	<h1>Todo</h1>
+	<TaskInput on:save={onSave}/>
+
+	<h1>Backlog</h1>
+	<BacklogTasks {backlogTasks} on:done={onDone}/>
+
+	<h1>Done</h1>
+	<DoneTasks {doneTasks}/>
 </main>
+
+<script>
+	import TaskInput from './TaskInput.svelte';
+	import BacklogTasks from './BacklogTasks.svelte';
+	import DoneTasks from './DoneTasks.svelte';
+
+	let tasks = []
+	$: backlogTasks = tasks.filter( task => task.status == 'backlog');
+	$: doneTasks = tasks.filter( task => task.status == 'done');
+
+	const onSave = (event) => {
+		let task = {
+			id: tasks.length + 1,
+			name: event.detail.name,
+			status: 'backlog'
+		}
+
+		tasks = [...tasks, task]
+	}
+
+	const onDone = (event) => {
+		let index = tasks.findIndex( task => task.id === event.detail.id);
+		tasks[index].status = 'done';
+	}
+</script>
 
 <style>
 	main {
@@ -17,8 +44,7 @@
 
 	h1 {
 		color: #ff3e00;
-		text-transform: uppercase;
-		font-size: 4em;
+		font-size: 3em;
 		font-weight: 100;
 	}
 
