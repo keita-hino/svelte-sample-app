@@ -1,13 +1,29 @@
 <div>
   <ul>
-    <li>
-      <input type="checkbox" class='checkbox-input'>タスク1
-    </li>
-    <li>
-      <input type="checkbox" class='checkbox-input'>タスク2
-    </li>
+    {#each backlogTasks as task(task.id)}
+      <li>
+        <input 
+          type="checkbox" 
+          class='checkbox-input' 
+          on:click={onDone(task.id)}
+        >{task.name}
+      </li>  
+    {/each}  
   </ul>
 </div>
+
+<script>
+  import { createEventDispatcher } from 'svelte';
+  export let backlogTasks = [];
+
+  const dispatch = createEventDispatcher();
+
+  const onDone = (id) => {
+    dispatch('done', {
+      id: id
+    });
+  }
+</script>
 
 <style>
   ul {
@@ -17,5 +33,4 @@
     margin-right: 8px;
     display: inline-flex;
   }
-
 </style>

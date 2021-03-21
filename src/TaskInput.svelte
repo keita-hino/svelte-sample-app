@@ -1,5 +1,19 @@
-<input class="input-field" placeholder="入力してください" />
-<button type="submit" class="sumit-button">保存する</button>
+<input class="input-field" bind:value={name} placeholder="入力してください" />
+<button type="submit" class="sumit-button" on:click={onSave}>保存する</button>
+
+<script lang="ts">
+  import { createEventDispatcher } from 'svelte'
+  let name = '';
+
+  const dispatch = createEventDispatcher();
+
+  const onSave = () => {
+    dispatch('save', {
+      name: name
+    });
+    name = '';
+  }
+</script>
 
 <style>
 .input-field {

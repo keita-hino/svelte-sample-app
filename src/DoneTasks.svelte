@@ -1,9 +1,14 @@
 <div>
-  <ul class="done-tasks">
-    <li>タスク1</li>
-    <li>タスク2</li>
+  <ul>
+    {#each doneTasks as task(task.id)}
+      <li class="done-tasks">{task.name}</li>
+    {/each}  
   </ul>
 </div>
+
+<script>
+  export let doneTasks = [];
+</script>
 
 <style>
   ul {
