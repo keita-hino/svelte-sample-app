@@ -13,25 +13,49 @@
 	import TaskInput from './TaskInput.svelte';
 	import BacklogTasks from './BacklogTasks.svelte';
 	import DoneTasks from './DoneTasks.svelte';
+	import { onMount } from 'svelte'
 
 	let tasks = []
 	$: backlogTasks = tasks.filter( task => task.status == 'backlog');
 	$: doneTasks = tasks.filter( task => task.status == 'done');
 
-	const onSave = (event) => {
-		let task = {
+	const onSave = async (event) => {
+		// TODO: この辺りの記述は重複してるので、あとあとまとめたい
+		const db = firebase.firestore();
+
+		await db.collection("tasks").add({
 			id: tasks.length + 1,
 			name: event.detail.name,
 			status: 'backlog'
-		}
+		})
 
-		tasks = [...tasks, task]
+		tasks = await getTasks()
 	}
 
-	const onDone = (event) => {
-		let index = tasks.findIndex( task => task.id === event.detail.id);
-		tasks[index].status = 'done';
+	const onDone = async (event) => {
+		const db = firebase.firestore();
+
+		// FIX: ここでドキュメントIDを取得するために通信してるが、もっと良い方法がありそう。
+		const collection = await db.collection('tasks').where("id", "==", event.detail.id).get();
+		const docId = collection.docs[0].id
+
+		await db.collection("tasks").doc(docId).set({
+			status: "done"
+		}, { merge: true })
+		
+		tasks = await getTasks()
 	}
+
+	const getTasks = async () => {
+		const db = firebase.firestore();
+
+		const collection = await db.collection('tasks').get();
+		return collection.docs.map( doc => doc.data())
+	}
+
+	onMount( async () => {
+		tasks = await getTasks()
+	})
 </script>
 
 <style>
