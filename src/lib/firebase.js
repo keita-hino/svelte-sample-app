@@ -1,3 +1,6 @@
+import firebase from 'firebase/app';
+import 'firebase/firestore';
+
 const firebaseConfig = {
   apiKey: FIREBASE_APIKEY,
   authDomain: FIREBASE_AUTH_DOMAIN,
@@ -7,6 +10,7 @@ const firebaseConfig = {
   messagingSenderId: FIREBASE_MESSAGING_SENDER_ID,
   appId: FIREBASE_APP_ID
 };
+
 // Initialize Firebase
 firebase.initializeApp(firebaseConfig);
 
