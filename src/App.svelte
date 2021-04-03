@@ -14,15 +14,13 @@
 	import BacklogTasks from './BacklogTasks.svelte';
 	import DoneTasks from './DoneTasks.svelte';
 	import { onMount } from 'svelte'
+	import { db } from './lib/firebase'
 
 	let tasks = []
 	$: backlogTasks = tasks.filter( task => task.status == 'backlog');
 	$: doneTasks = tasks.filter( task => task.status == 'done');
 
 	const onSave = async (event) => {
-		// TODO: この辺りの記述は重複してるので、あとあとまとめたい
-		const db = firebase.firestore();
-
 		await db.collection("tasks").add({
 			id: tasks.length + 1,
 			name: event.detail.name,
@@ -33,8 +31,6 @@
 	}
 
 	const onDone = async (event) => {
-		const db = firebase.firestore();
-
 		// FIX: ここでドキュメントIDを取得するために通信してるが、もっと良い方法がありそう。
 		const collection = await db.collection('tasks').where("id", "==", event.detail.id).get();
 		const docId = collection.docs[0].id
@@ -47,8 +43,6 @@
 	}
 
 	const getTasks = async () => {
-		const db = firebase.firestore();
-
 		const collection = await db.collection('tasks').get();
 		return collection.docs.map( doc => doc.data())
 	}
