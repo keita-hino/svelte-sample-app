@@ -1,74 +1,74 @@
 <main>
-	<h1>Todo</h1>
-	<TaskInput on:save={onSave}/>
+  <h1>Todo</h1>
+  <TaskInput on:save={onSave}/>
 
-	<h1>Backlog</h1>
-	<BacklogTasks {backlogTasks} on:done={onDone}/>
+  <h1>Backlog</h1>
+  <BacklogTasks {backlogTasks} on:done={onDone}/>
 
-	<h1>Done</h1>
-	<DoneTasks {doneTasks}/>
+  <h1>Done</h1>
+  <DoneTasks {doneTasks}/>
 </main>
 
 <script>
-	import TaskInput from './TaskInput.svelte';
-	import BacklogTasks from './BacklogTasks.svelte';
-	import DoneTasks from './DoneTasks.svelte';
-	import { onMount } from 'svelte'
-	import { db } from './lib/firebase'
+  import TaskInput from './TaskInput.svelte';
+  import BacklogTasks from './BacklogTasks.svelte';
+  import DoneTasks from './DoneTasks.svelte';
+  import { onMount } from 'svelte'
+  import { db } from './lib/firebase'
 
-	let tasks = []
-	$: backlogTasks = tasks.filter( task => task.status == 'backlog');
-	$: doneTasks = tasks.filter( task => task.status == 'done');
+  let tasks = []
+  $: backlogTasks = tasks.filter( task => task.status == 'backlog');
+  $: doneTasks = tasks.filter( task => task.status == 'done');
 
-	const onSave = async (event) => {
-		await db.collection("tasks").add({
-			id: tasks.length + 1,
-			name: event.detail.name,
-			status: 'backlog'
-		})
+  const onSave = async (event) => {
+    await db.collection("tasks").add({
+      id: tasks.length + 1,
+      name: event.detail.name,
+      status: 'backlog'
+    })
 
-		tasks = await getTasks()
-	}
+    tasks = await getTasks()
+  }
 
-	const onDone = async (event) => {
-		// FIX: ここでドキュメントIDを取得するために通信してるが、もっと良い方法がありそう。
-		const collection = await db.collection('tasks').where("id", "==", event.detail.id).get();
-		const docId = collection.docs[0].id
+  const onDone = async (event) => {
+    // FIX: ここでドキュメントIDを取得するために通信してるが、もっと良い方法がありそう。
+    const collection = await db.collection('tasks').where("id", "==", event.detail.id).get();
+    const docId = collection.docs[0].id
 
-		await db.collection("tasks").doc(docId).set({
-			status: "done"
-		}, { merge: true })
-		
-		tasks = await getTasks()
-	}
+    await db.collection("tasks").doc(docId).set({
+      status: "done"
+    }, { merge: true })
+    
+    tasks = await getTasks()
+  }
 
-	const getTasks = async () => {
-		const collection = await db.collection('tasks').get();
-		return collection.docs.map( doc => doc.data())
-	}
+  const getTasks = async () => {
+    const collection = await db.collection('tasks').get();
+    return collection.docs.map( doc => doc.data())
+  }
 
-	onMount( async () => {
-		tasks = await getTasks()
-	})
+  onMount( async () => {
+    tasks = await getTasks()
+  })
 </script>
 
 <style>
-	main {
-		text-align: center;
-		padding: 1em;
-		max-width: 240px;
-		margin: 0 auto;
-	}
+  main {
+    text-align: center;
+    padding: 1em;
+    max-width: 240px;
+    margin: 0 auto;
+  }
 
-	h1 {
-		color: #ff3e00;
-		font-size: 3em;
-		font-weight: 100;
-	}
+  h1 {
+    color: #ff3e00;
+    font-size: 3em;
+    font-weight: 100;
+  }
 
-	@media (min-width: 640px) {
-		main {
-			max-width: none;
-		}
-	}
+  @media (min-width: 640px) {
+    main {
+      max-width: none;
+    }
+  }
 </style>
